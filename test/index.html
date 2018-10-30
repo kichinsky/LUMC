@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+    <head>
+        <title>
+            Language Understanding Model Converter
+        </title>
+        <link rel="stylesheet" href="./css/index.css" />
+    </head>
+    <body>
+            <h1>Language Understanding Model Converter</h1>
+            <div id="model_convertor">
+                <div id="source_model">
+                    <h2>Source Model</h2>
+                    <input id="load_source_model_btn" type="file" value="Open Source Model"/>
+                    <textarea></textarea>
+                </div>
+                <div id="convertor">
+                    <button id="convert_btn" name="Convert">Convert</button>
+                </div>
+                <div id="output_model">
+                    <h2>Output Model</h2>
+                    <textarea></textarea>
+                    <button id="save_output_model_btn" name="Save">Save Model</button>
+                </div>
+            </div>
+    </body>
+
+    <script src="./js/system.js"></script>
+    <script>
+        SystemJS.import("./js/lucm.js").then(function(module){
+            Promise.all([
+                SystemJS.import('./js/FileSaver.js'),
+                SystemJS.import('models/Amazon.Alexa')
+                
+            ]).then(function(modules){                
+                let saveAs = modules[0].default;
+                let AlexaModel = modules[1].Amazon.AlexaModel;
+                //let alexa2luis = new ModelConverter.AlexaToLuisConveter();
+
+                let convert_btn = document.querySelector("#convert_btn");
+                let sourceload_btn = document.querySelector("#load_source_model_btn");
+                let outputsave_btn = document.querySelector("#save_output_model_btn");
+                let source_ta = document.querySelector("#source_model textarea");
+                let output_ta = document.querySelector("#output_model textarea");                
+
+                convert_btn.addEventListener("click", (e) => {
+                    let sourceJSON = source_ta.value;
+
+                    let model = AlexaModel.deserialize(sourceJSON);
+
+                    output_ta.value = model.serialize();
+
+                    /* alexa2luis.initAlexaFromJSON(alexaJSON);
+                    alexa2luis.convert();
+                    if (version.value != "") {
+                        alexa2luis.luisModel.versionId = version.value;
+                    }
+                    luis_ta.value = JSON.stringify(alexa2luis.luisModel);  */          
+                });
+
+                sourceload_btn.addEventListener("change", (e) => {
+                    let file = e.target.files[0];
+                    if (!file) {
+                        return;
+                    }
+                    let reader = new FileReader();
+                    reader.addEventListener("load", (e) => {
+                        source_ta.value = e.target.result;
+                    });
+                    reader.readAsText(file);
+                }, false)
+
+                outputsave_btn.addEventListener("click", (e) => {
+                    if (output_ta.value != "") {
+                        var blob = new Blob([output_ta.value], {type: "text/plain;charset=utf-8"});
+                        saveAs(blob, "luis_model_" + ".json");
+                    }
+                });
+            });
+
+        }).catch(function(err){ 
+            console.error(err); 
+        });
+    </script>
+</html>

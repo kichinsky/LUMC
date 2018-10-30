@@ -1,0 +1,195 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "quantum quintum",
+            "intents": [
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "explain_term",
+                    "slots": [
+                        {
+                            "name": "term",
+                            "type": "Quantum_Term",
+                            "samples": [
+                                "What is {term} ",
+                                "I don't understand {term}",
+                                "Clarify {term}",
+                                "Explain {term}",
+                                "{term}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "explain {term}",
+                        "what is {term}",
+                        "what is a {term}",
+                        "what is the definition of {term}",
+                        "Please explain what is {term}"
+                    ]
+                },
+                {
+                    "name": "get_new_exercise",
+                    "slots": [],
+                    "samples": [
+                        "next exercise",
+                        "practice now",
+                        "give me an exercise",
+                        "practice please",
+                        "practice",
+                        "let's exercise",
+                        "let's do some practice"
+                    ]
+                },
+                {
+                    "name": "give_spectrum_sample",
+                    "slots": [
+                        {
+                            "name": "spectrum_part",
+                            "type": "Quantum_Spectrum_Part"
+                        },
+                        {
+                            "name": "mismatch",
+                            "type": "AMAZON.LITERAL"
+                        }
+                    ],
+                    "samples": [
+                        "Give me an example of {spectrum_part} disability for {mismatch}",
+                        "How {spectrum_part} part looks for {mismatch} mismatch",
+                        "How {spectrum_part} spectrum looks for the {mismatch} mismatch"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "Quantum_Term",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "exclusion"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "inclusion"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "spectrum"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "disability"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "mismatch"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Quantum_Spectrum_Part",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "permanent"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "situational"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "temporary"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "dialog": {
+            "intents": [
+                {
+                    "name": "explain_term",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "term",
+                            "type": "Quantum_Term",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.329671382446.1434644928191"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "give_spectrum_sample",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "spectrum_part",
+                            "type": "Quantum_Spectrum_Part",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": ""
+                            }
+                        },
+                        {
+                            "name": "mismatch",
+                            "type": "AMAZON.LITERAL",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": ""
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "prompts": [
+            {
+                "id": "Elicit.Slot.329671382446.1434644928191",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What term can I clarify for you?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "What term do you want me to explain?"
+                    }
+                ]
+            }
+        ]
+    }
+}

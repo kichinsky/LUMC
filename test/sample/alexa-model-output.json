@@ -1,0 +1,217 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "quantum quintum",
+            "intents": [
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "slots": [],
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "slots": [],
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "slots": [],
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "slots": [],
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "slots": [],
+                    "samples": []
+                },
+                {
+                    "name": "explain_term",
+                    "slots": [
+                        {
+                            "name": "term",
+                            "type": "Quantum_Term",
+                            "samples": [
+                                "What is {term} ",
+                                "I don't understand {term}",
+                                "Clarify {term}",
+                                "Explain {term}",
+                                "{term}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "explain {term}",
+                        "what is {term}",
+                        "what is a {term}",
+                        "what is the definition of {term}",
+                        "Please explain what is {term}"
+                    ]
+                },
+                {
+                    "name": "get_new_exercise",
+                    "slots": [],
+                    "samples": [
+                        "next exercise",
+                        "practice now",
+                        "give me an exercise",
+                        "practice please",
+                        "practice",
+                        "let's exercise",
+                        "let's do some practice"
+                    ]
+                },
+                {
+                    "name": "give_spectrum_sample",
+                    "slots": [
+                        {
+                            "name": "spectrum_part",
+                            "type": "Quantum_Spectrum_Part",
+                            "samples": []
+                        },
+                        {
+                            "name": "mismatch",
+                            "type": "AMAZON.LITERAL",
+                            "samples": []
+                        }
+                    ],
+                    "samples": [
+                        "Give me an example of {spectrum_part} disability for {mismatch}",
+                        "How {spectrum_part} part looks for {mismatch} mismatch",
+                        "How {spectrum_part} spectrum looks for the {mismatch} mismatch"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "Quantum_Term",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "exclusion"
+                            },
+                            "id": ""
+                        },
+                        {
+                            "name": {
+                                "value": "inclusion"
+                            },
+                            "id": ""
+                        },
+                        {
+                            "name": {
+                                "value": "spectrum"
+                            },
+                            "id": ""
+                        },
+                        {
+                            "name": {
+                                "value": "disability"
+                            },
+                            "id": ""
+                        },
+                        {
+                            "name": {
+                                "value": "mismatch"
+                            },
+                            "id": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Quantum_Spectrum_Part",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "permanent"
+                            },
+                            "id": ""
+                        },
+                        {
+                            "name": {
+                                "value": "situational"
+                            },
+                            "id": ""
+                        },
+                        {
+                            "name": {
+                                "value": "temporary"
+                            },
+                            "id": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        "dialog": {
+            "intents": [
+                {
+                    "name": "explain_term",
+                    "slots": [
+                        {
+                            "name": "term",
+                            "type": "Quantum_Term",
+                            "elicitationRequired": true,
+                            "confirmationRequired": false,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.329671382446.1434644928191",
+                                "confirmation": ""
+                            }
+                        }
+                    ],
+                    "confirmationRequired": false,
+                    "prompts": {
+                        "confirmation": ""
+                    }
+                },
+                {
+                    "name": "give_spectrum_sample",
+                    "slots": [
+                        {
+                            "name": "spectrum_part",
+                            "type": "Quantum_Spectrum_Part",
+                            "elicitationRequired": true,
+                            "confirmationRequired": false,
+                            "prompts": {
+                                "elicitation": "",
+                                "confirmation": ""
+                            }
+                        },
+                        {
+                            "name": "mismatch",
+                            "type": "AMAZON.LITERAL",
+                            "elicitationRequired": true,
+                            "confirmationRequired": false,
+                            "prompts": {
+                                "elicitation": "",
+                                "confirmation": ""
+                            }
+                        }
+                    ],
+                    "confirmationRequired": false,
+                    "prompts": {
+                        "confirmation": ""
+                    }
+                }
+            ]
+        },
+        "prompts": [
+            {
+                "id": "Elicit.Slot.329671382446.1434644928191",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What term can I clarify for you?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "What term do you want me to explain?"
+                    }
+                ]
+            }
+        ]
+    }
+}
