@@ -49,13 +49,6 @@
                     let model = AlexaModel.deserialize(sourceJSON);
 
                     output_ta.value = model.serialize();
-
-                    /* alexa2luis.initAlexaFromJSON(alexaJSON);
-                    alexa2luis.convert();
-                    if (version.value != "") {
-                        alexa2luis.luisModel.versionId = version.value;
-                    }
-                    luis_ta.value = JSON.stringify(alexa2luis.luisModel);  */          
                 });
 
                 sourceload_btn.addEventListener("change", (e) => {
