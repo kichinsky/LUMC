@@ -784,7 +784,7 @@ define("models/Amazon.Alexa", ["require", "exports"], function (require, exports
                         }
                     }
                     serialize() {
-                        return JSON.stringify(this.toJSONObject());
+                        return JSON.stringify(this);
                     }
                     static deserialize(json) {
                         let o = JSON.parse(json);

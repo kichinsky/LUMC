@@ -17,16 +17,6 @@ export namespace LUMC.Models.Alexa {
             this.prompts = (prompts !== undefined)? prompts: new Array<Prompt>();
         }
 
-        public toJSONObject(): { languageModel: any, dialog?: any; prompts?: Array<any>} {
-            return {
-                languageModel: this.languageModel.toJSONObject(),
-                dialog: (this.dialog !== null)? this.dialog.toJSONObject(): null,
-                prompts: this.prompts.map((prompt) => {
-                    return prompt.toJSONObject();
-                })
-            };
-        }
-
         public static fromJSONObject(jsonObj: { languageModel: any, dialog?: any; prompts?: Array<any>}): InteractionModel {
             if (jsonObj.languageModel !== undefined) {
                 let im = new InteractionModel(LanguageModel.fromJSONObject(jsonObj.languageModel));
@@ -59,18 +49,6 @@ export namespace LUMC.Models.Alexa {
             this.invocationName = invocationName;
             this.intents = intents;
             this.types = (types != undefined)? types: new Array<LanguageModelType>();
-        }
-
-        public toJSONObject(): { invocationName: string, intents: Array<any>; types?: Array<any>} {
-            return {
-                invocationName: this.invocationName,
-                intents: this.intents.map((intent) => {
-                    return intent.toJSONObject();
-                }),
-                types: this.types.map((type) => {
-                    return type.toJSONObject();
-                })
-            };
         }
 
         public static fromJSONObject(jsonObj: { invocationName: string, intents: Array<any>; types?: Array<any>}): LanguageModel {
@@ -110,18 +88,6 @@ export namespace LUMC.Models.Alexa {
             this.samples = (samples !== undefined)? samples: new Array<string>();
         }
 
-        public toJSONObject(): { name: any, slots?: Array<any>, samples?: Array<any> } {
-            return {
-                name: this.name,
-                slots: this.slots.map((slot) => {
-                    return slot.toJSONObject();
-                }),
-                samples: this.samples.map((sample) => {
-                    return sample;
-                })
-            }
-        }
-
         public static fromJSONObject(jsonObj: { name: any, slots?: Array<any>, samples?: Array<any> }): LanguageModelIntent {
             if (jsonObj.name !== undefined) {
                 let intent = new LanguageModelIntent(jsonObj.name);
@@ -158,16 +124,6 @@ export namespace LUMC.Models.Alexa {
             this.samples = samples;
         }
 
-        public toJSONObject(): { name: any, type: any, samples?: Array<any> } {
-            return {
-                name: this.name,
-                type: this.type,
-                samples: this.samples.map((sample) => {
-                    return sample;
-                })
-            }
-        }
-
         public static fromJSONObj(jsonObj: { name: any, type: any, samples?: Array<any> }): LanguageModelIntentSlot {
             if (jsonObj.name !== undefined && jsonObj.type !== undefined) {
                 let slot = new LanguageModelIntentSlot(jsonObj.name, jsonObj.type);
@@ -196,15 +152,6 @@ export namespace LUMC.Models.Alexa {
             this.values = values;
         }
 
-        public toJSONObject(): { name: any, values: Array<any> } {
-            return {
-                name: this.name,
-                values: this.values.map((value) => {
-                    return value.toJSONObject();
-                })
-            }
-        }
-
         public static fromJSONObject(jsonObj: { name: any, values: Array<any> }): LanguageModelType {
             if (jsonObj.name !== undefined && jsonObj.values !== undefined) {
                 return new LanguageModelType(
@@ -230,13 +177,6 @@ export namespace LUMC.Models.Alexa {
             this.id = id;
         }
 
-        public toJSONObject(): { name: any, id?: any} {
-            return {
-                name: this.name.toJSONObject(),
-                id: this.id,
-            }
-        }
-
         public static fromJSONObject(jsonObj: { name: any, id?: any}): LanguageModelTypeValue {
             if (jsonObj.name !== undefined) {
                 let value = new LanguageModelTypeValue(LanguageModelTypeValueName.fromJSONObject(jsonObj.name));
@@ -258,12 +198,6 @@ export namespace LUMC.Models.Alexa {
             this.value = value;
         }
 
-        public toJSONObject(): { value: any} {
-            return {
-                value: this.value
-            }
-        }
-
         public static fromJSONObject(jsonObj: { value: any}): LanguageModelTypeValueName {
             if (jsonObj.value !== undefined) {
                 return new LanguageModelTypeValueName(jsonObj.value);
@@ -280,15 +214,6 @@ export namespace LUMC.Models.Alexa {
         constructor(value: string, synonyms?: Array<string>) {
             super(value);
             this.synonyms = (synonyms !== undefined)? synonyms : new Array<string>();
-        }
-
-        public toJSONObject(): { value: any, synonyms?: Array<any> } {
-            return {
-                value: this.value,
-                synonyms: this.synonyms.map((synonym) => {
-                    return synonym.toString();
-                })
-            }
         }
 
         public static fromJSONObject(jsonObj: { value: any, synonyms?: Array<any> }): LanguageModelTypeValueSynonyms {
@@ -314,14 +239,6 @@ export namespace LUMC.Models.Alexa {
 
         constructor(intents: Array<DialogIntent>) {
             this.intents = intents;
-        }
-
-        public toJSONObject(): { intents: Array<any> } {
-            return {
-                intents: this.intents.map((intent) => {
-                    return intent.toJSONObject();
-                })
-            }
         }
 
         public static fromJSONObject(jsonObj: { intents: Array<any> }): Dialog {
@@ -350,18 +267,6 @@ export namespace LUMC.Models.Alexa {
             this.slots = (slots !== undefined)? slots : new Array<DialogIntentSlot>();
             this.confirmationRequired = (confirmationRequired !== undefined)? confirmationRequired : false;
             this.prompts = (prompts !== undefined)? prompts: new DialogIntentPromptType();
-        }
-
-        public toJSONObject(): { name: any, slots?: Array<any>, confirmationRequired?: any, prompts?: any } {
-            return {
-                name: this.name,
-                slots: this.slots.map((slot) => {
-                    return slot.toJSONObject();
-                }),
-                confirmationRequired: this.confirmationRequired,
-                prompts: this.prompts.toJSONObject()
-                
-            }
         }
 
         public static fromJSONObject(jsonObj: { name: any, slots?: Array<any>, confirmationRequired?: any, prompts?: any }): DialogIntent {
@@ -397,12 +302,6 @@ export namespace LUMC.Models.Alexa {
             this.confirmation = (this.confirmation !== undefined)? confirmation: "";
         }
 
-        public toJSONObject(): { confirmation?: any} {
-            return {
-                confirmation: this.confirmation
-            }
-        }
-
         public static fromJSONObject(jsonObj: { confirmation?: any}): DialogIntentPromptType {
             return new DialogIntentPromptType(jsonObj.confirmation);
 
@@ -428,16 +327,6 @@ export namespace LUMC.Models.Alexa {
             this.elicitationRequired = (elicitationRequired !== undefined)? elicitationRequired: false;
             this.confirmationRequired = (confirmationRequired !== undefined)? confirmationRequired: false;
             this.prompts = (prompts !== undefined)? prompts: new DialogIntentSlotPromptType();
-        }
-
-        public toJSONObject(): { name: any, type: any, elicitationRequired?: any, confirmationRequired?: any, prompts?: any } {
-            return {
-                name: this.name,
-                type: this.type,
-                elicitationRequired: this.elicitationRequired,
-                confirmationRequired: this.confirmationRequired,
-                prompts: this.prompts.toJSONObject()
-            }
         }
 
         public static fromJSONObject(jsonObj: { name: any, type: any, elicitationRequired?: any, confirmationRequired?: any, prompts?: any }): DialogIntentSlot {
@@ -471,13 +360,6 @@ export namespace LUMC.Models.Alexa {
             this.confirmation = (confirmation !== undefined)? confirmation: "";
         }
 
-        public toJSONObject(): { elicitation?: any, confirmation?: any } {
-            return {
-                elicitation: this.elicitation,
-                confirmation: this.confirmation
-            }
-        } 
-
         public static fromJSONObject(jsonObj: { elicitation?: any, confirmation?: any }): DialogIntentSlotPromptType {
             return new DialogIntentSlotPromptType(jsonObj.elicitation, jsonObj.confirmation);
 
@@ -494,15 +376,6 @@ export namespace LUMC.Models.Alexa {
         constructor(id: string, variations: Array<PromptVariation>) {
             this.id = id;
             this.variations = variations;
-        }
-
-        public toJSONObject(): { id: any, variations: Array<any> } {
-            return {
-                id: this.id,
-                variations: this.variations.map((variation) => {
-                    return variation.toJSONObject();
-                })
-            }
         }
 
         public static fromJSONObject(jsonObj: { id: any, variations: Array<any> }): Prompt {
@@ -529,13 +402,6 @@ export namespace LUMC.Models.Alexa {
             this.value = value;    
         }
 
-        public toJSONObject(): { type: any, value: any }{
-            return {
-                type: this.type,
-                value: this.value
-            };
-        }
-
         public static fromJSONObject(jsonObj: { type: any, value: any }): PromptVariation {
             if (jsonObj.type !== undefined && jsonObj.value !== undefined) {
                 return new PromptVariation(jsonObj.type, jsonObj.value);
@@ -558,12 +424,6 @@ export namespace LUMC.Models.Alexa {
             this.interactionModel = interactionModel;
         }
 
-        public toJSONObject(): { interactionModel: any }{
-            return {
-                interactionModel: this.interactionModel.toJSONObject()
-            };
-        }
-
         public static fromJSONObject(jsonObj: { interactionModel: any }): AlexaModel {
             if (jsonObj.interactionModel !== undefined) {
                 return new AlexaModel(InteractionModel.fromJSONObject(jsonObj.interactionModel));
@@ -574,7 +434,7 @@ export namespace LUMC.Models.Alexa {
         }
 
         public serialize(): string {
-            return JSON.stringify(this.toJSONObject());
+            return JSON.stringify(this);
         }
 
         public static deserialize(json: string): AlexaModel {

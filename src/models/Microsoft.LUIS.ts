@@ -475,6 +475,12 @@ export namespace LUMC.Models.LUIS {
                 this.utterances = new Array<Utterance>(newUtterance);
             }
         }
+
+        public serialize(): string {
+            return JSON.stringify(this);
+        }
+
+        
     }    
 
 }
