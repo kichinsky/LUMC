@@ -1,0 +1,643 @@
+{
+  "luis_schema_version": "3.1.0",
+  "versionId": "0.1",
+  "name": "Quantum Bot Model",
+  "desc": "",
+  "culture": "en-us",
+  "intents": [
+    {
+      "name": "explain_term"
+    },
+    {
+      "name": "get_new_exercise"
+    },
+    {
+      "name": "give_spectrum_sample"
+    },
+    {
+      "name": "None"
+    },
+    {
+      "name": "OnDevice.Help",
+      "inherits": {
+        "domain_name": "OnDevice",
+        "model_name": "Help"
+      }
+    },
+    {
+      "name": "OnDevice.OpenSetting",
+      "inherits": {
+        "domain_name": "OnDevice",
+        "model_name": "OpenSetting"
+      }
+    }
+  ],
+  "entities": [
+    {
+      "name": "mismatch_attribute",
+      "roles": []
+    },
+    {
+      "name": "mismatch_main",
+      "roles": []
+    },
+    {
+      "name": "mismatch_param",
+      "roles": []
+    },
+    {
+      "name": "OnDevice.DeviceType",
+      "inherits": {
+        "domain_name": "OnDevice",
+        "model_name": "DeviceType"
+      },
+      "roles": []
+    },
+    {
+      "name": "term",
+      "roles": []
+    },
+    {
+      "name": "spectrum_part",
+      "children": [
+        "Permanent",
+        "Situational",
+        "Temporary"
+      ],
+      "roles": []
+    }
+  ],
+  "composites": [
+    {
+      "name": "mismatch",
+      "children": [
+        "mismatch_attribute",
+        "mismatch_param",
+        "mismatch_main"
+      ],
+      "roles": []
+    }
+  ],
+  "closedLists": [],
+  "patternAnyEntities": [],
+  "regex_entities": [],
+  "prebuiltEntities": [
+    {
+      "name": "datetimeV2",
+      "roles": []
+    },
+    {
+      "name": "number",
+      "roles": [
+        "ExerciseNumber"
+      ]
+    }
+  ],
+  "model_features": [
+    {
+      "name": "Spectrum Part List",
+      "mode": false,
+      "words": "temporary,situational,permanent",
+      "activated": true
+    }
+  ],
+  "regex_features": [],
+  "patterns": [
+    {
+      "pattern": "give the {number:ExerciseNumber} exercise",
+      "intent": "get_new_exercise"
+    },
+    {
+      "pattern": "show me the exercise number {number:ExerciseNumber}.",
+      "intent": "get_new_exercise"
+    },
+    {
+      "pattern": "give me the {number:ExerciseNumber} sample",
+      "intent": "get_new_exercise"
+    }
+  ],
+  "utterances": [
+    {
+      "text": "can you help me in pairing bluetooth signal to phone",
+      "intent": "OnDevice.OpenSetting",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 47,
+          "endPos": 51
+        }
+      ]
+    },
+    {
+      "text": "can you help me in the setup process",
+      "intent": "OnDevice.Help",
+      "entities": []
+    },
+    {
+      "text": "can you locate my phone",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 18,
+          "endPos": 22
+        }
+      ]
+    },
+    {
+      "text": "can you shut down my computer",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 21,
+          "endPos": 28
+        }
+      ]
+    },
+    {
+      "text": "check update",
+      "intent": "OnDevice.OpenSetting",
+      "entities": []
+    },
+    {
+      "text": "color scheme change",
+      "intent": "OnDevice.OpenSetting",
+      "entities": []
+    },
+    {
+      "text": "edit settings .",
+      "intent": "OnDevice.OpenSetting",
+      "entities": []
+    },
+    {
+      "text": "explain me inclusion",
+      "intent": "explain_term",
+      "entities": [
+        {
+          "entity": "term",
+          "startPos": 11,
+          "endPos": 19
+        }
+      ]
+    },
+    {
+      "text": "explain mismatch",
+      "intent": "explain_term",
+      "entities": [
+        {
+          "entity": "term",
+          "startPos": 8,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "explain what is inclusion",
+      "intent": "explain_term",
+      "entities": [
+        {
+          "entity": "term",
+          "startPos": 16,
+          "endPos": 24
+        }
+      ]
+    },
+    {
+      "text": "find my phone",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 8,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "find my sim card",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 8,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "find my xbox",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 8,
+          "endPos": 11
+        }
+      ]
+    },
+    {
+      "text": "give me a new exercise",
+      "intent": "get_new_exercise",
+      "entities": []
+    },
+    {
+      "text": "give me an example of a permanent part of the spectrum for low income",
+      "intent": "give_spectrum_sample",
+      "entities": [
+        {
+          "entity": "spectrum_part::Permanent",
+          "startPos": 24,
+          "endPos": 32
+        },
+        {
+          "entity": "mismatch_attribute",
+          "startPos": 59,
+          "endPos": 61
+        },
+        {
+          "entity": "mismatch",
+          "startPos": 59,
+          "endPos": 68
+        },
+        {
+          "entity": "mismatch_main",
+          "startPos": 63,
+          "endPos": 68
+        }
+      ]
+    },
+    {
+      "text": "give me an example of a temporary disability for low vision mismatch",
+      "intent": "give_spectrum_sample",
+      "entities": [
+        {
+          "entity": "spectrum_part::Temporary",
+          "startPos": 24,
+          "endPos": 32
+        },
+        {
+          "entity": "mismatch_attribute",
+          "startPos": 49,
+          "endPos": 51
+        },
+        {
+          "entity": "mismatch",
+          "startPos": 49,
+          "endPos": 58
+        },
+        {
+          "entity": "mismatch_main",
+          "startPos": 53,
+          "endPos": 58
+        }
+      ]
+    },
+    {
+      "text": "give me an exercise",
+      "intent": "get_new_exercise",
+      "entities": []
+    },
+    {
+      "text": "give the yesterday exercice",
+      "intent": "get_new_exercise",
+      "entities": []
+    },
+    {
+      "text": "hello what can you do",
+      "intent": "OnDevice.Help",
+      "entities": []
+    },
+    {
+      "text": "help me",
+      "intent": "OnDevice.Help",
+      "entities": []
+    },
+    {
+      "text": "help please",
+      "intent": "OnDevice.Help",
+      "entities": []
+    },
+    {
+      "text": "how situational part looks for bad health condition mismatch",
+      "intent": "give_spectrum_sample",
+      "entities": [
+        {
+          "entity": "spectrum_part::Situational",
+          "startPos": 4,
+          "endPos": 14
+        },
+        {
+          "entity": "mismatch_attribute",
+          "startPos": 31,
+          "endPos": 33
+        },
+        {
+          "entity": "mismatch",
+          "startPos": 31,
+          "endPos": 50
+        },
+        {
+          "entity": "mismatch_param",
+          "startPos": 35,
+          "endPos": 40
+        },
+        {
+          "entity": "mismatch_main",
+          "startPos": 42,
+          "endPos": 50
+        }
+      ]
+    },
+    {
+      "text": "i need help",
+      "intent": "OnDevice.Help",
+      "entities": []
+    },
+    {
+      "text": "i need your help",
+      "intent": "OnDevice.Help",
+      "entities": []
+    },
+    {
+      "text": "let's do an exercise",
+      "intent": "get_new_exercise",
+      "entities": []
+    },
+    {
+      "text": "let's do some practice",
+      "intent": "get_new_exercise",
+      "entities": []
+    },
+    {
+      "text": "let's practice",
+      "intent": "get_new_exercise",
+      "entities": []
+    },
+    {
+      "text": "log off computer",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 8,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "log off my phone",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 11,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "make my phone ring",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 8,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "my computer sleep",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 3,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "next exercise",
+      "intent": "get_new_exercise",
+      "entities": []
+    },
+    {
+      "text": "open display plus brightness",
+      "intent": "OnDevice.OpenSetting",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 5,
+          "endPos": 11
+        }
+      ]
+    },
+    {
+      "text": "open my location",
+      "intent": "OnDevice.OpenSetting",
+      "entities": []
+    },
+    {
+      "text": "open network settings",
+      "intent": "OnDevice.OpenSetting",
+      "entities": []
+    },
+    {
+      "text": "open settings and access different backgrounds",
+      "intent": "OnDevice.OpenSetting",
+      "entities": []
+    },
+    {
+      "text": "open the volume music settings right now",
+      "intent": "OnDevice.OpenSetting",
+      "entities": []
+    },
+    {
+      "text": "please help",
+      "intent": "OnDevice.Help",
+      "entities": []
+    },
+    {
+      "text": "please, explain what is disability?",
+      "intent": "explain_term",
+      "entities": [
+        {
+          "entity": "term",
+          "startPos": 24,
+          "endPos": 33
+        }
+      ]
+    },
+    {
+      "text": "practice now",
+      "intent": "get_new_exercise",
+      "entities": []
+    },
+    {
+      "text": "reboot computer",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 7,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "reboot kindle",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 7,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "restart laptop",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 8,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "restart my xbox",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 11,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "restart the machine",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 12,
+          "endPos": 18
+        }
+      ]
+    },
+    {
+      "text": "ring my phone",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 8,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "settings phone",
+      "intent": "OnDevice.OpenSetting",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 9,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "show me more help topics",
+      "intent": "OnDevice.Help",
+      "entities": []
+    },
+    {
+      "text": "show me the exercise from last week",
+      "intent": "get_new_exercise",
+      "entities": []
+    },
+    {
+      "text": "turn off the device",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 13,
+          "endPos": 18
+        }
+      ]
+    },
+    {
+      "text": "turn on narrator",
+      "intent": "OnDevice.OpenSetting",
+      "entities": []
+    },
+    {
+      "text": "what can i say ?",
+      "intent": "OnDevice.Help",
+      "entities": []
+    },
+    {
+      "text": "what is a mismatch?",
+      "intent": "explain_term",
+      "entities": [
+        {
+          "entity": "term",
+          "startPos": 10,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "what is an example for a mismatch in a situation",
+      "intent": "give_spectrum_sample",
+      "entities": [
+        {
+          "entity": "spectrum_part::Situational",
+          "startPos": 39,
+          "endPos": 47
+        }
+      ]
+    },
+    {
+      "text": "what is spectrum?",
+      "intent": "explain_term",
+      "entities": [
+        {
+          "entity": "term",
+          "startPos": 8,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "what is the definition of spectrum?",
+      "intent": "explain_term",
+      "entities": [
+        {
+          "entity": "term",
+          "startPos": 26,
+          "endPos": 33
+        }
+      ]
+    },
+    {
+      "text": "where is my phone",
+      "intent": "OnDevice.Help",
+      "entities": [
+        {
+          "entity": "OnDevice.DeviceType",
+          "startPos": 12,
+          "endPos": 16
+        }
+      ]
+    }
+  ],
+  "settings": []
+}

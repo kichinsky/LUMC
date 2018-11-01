@@ -2,8 +2,8 @@
 ** Based on the Interaction Model described here: https://developer.amazon.com/docs/smapi/interaction-model-schema.html
 */
 
-export namespace Amazon {
-    export class InteractionModel {
+export namespace LUMC.Models {
+    class InteractionModel {
         // Conversational primitives for the skill, required
         public languageModel: LanguageModel;
         // Rules for conducting a multi-turn dialog with the user, optional
@@ -47,7 +47,7 @@ export namespace Amazon {
 
     }
 
-    export class LanguageModel {
+    class LanguageModel {
         // Invocation name of the skill, required
         public invocationName: string;
         // Intents and their slots, required
@@ -96,7 +96,7 @@ export namespace Amazon {
 
     }
 
-    export class LanguageModelIntent {
+    class LanguageModelIntent {
         // Name of the intent, required
         public name: string;
         // List of slots within the intent, optional
@@ -144,7 +144,7 @@ export namespace Amazon {
         }
     }
 
-    export class LanguageModelIntentSlot {
+    class LanguageModelIntentSlot {
         // Name of the slot, required
         public name: string;
         // Type of the slot, required
@@ -185,7 +185,7 @@ export namespace Amazon {
         }
     }
 
-    export class LanguageModelType {
+    class LanguageModelType {
         // Name of the custom slot type, required
         public name: string;
         // List of representative values for the slot, required
@@ -219,7 +219,7 @@ export namespace Amazon {
         }
     }
 
-    export class LanguageModelTypeValue {
+    class LanguageModelTypeValue {
         // Describes a value of a custom slot type, required
         public name: LanguageModelTypeValueName;
         // Identifier for a value of a custom slot type, optional?
@@ -250,7 +250,7 @@ export namespace Amazon {
         }
     }
 
-    export class LanguageModelTypeValueName {
+    class LanguageModelTypeValueName {
         // A value for a custom slot type, required
         public value: string;
 
@@ -273,7 +273,7 @@ export namespace Amazon {
         }
     }
 
-    export class LanguageModelTypeValueSynonyms extends LanguageModelTypeValueName {
+    class LanguageModelTypeValueSynonyms extends LanguageModelTypeValueName {
         // List of potential synonyms for a value of a custom slot type, optional
         public synonyms: Array<string>;
 
@@ -308,7 +308,7 @@ export namespace Amazon {
         }
     }
 
-    export class Dialog {
+    class Dialog {
         // List of intents that have dialog rules associated with them, required
         public intents: Array<DialogIntent>;
 
@@ -335,7 +335,7 @@ export namespace Amazon {
         }
      }
 
-    export class DialogIntent {
+    class DialogIntent {
         // Name of the intent that has dialog rules, required
         public name: string;
         // List of slots in this intent that have dialog rules, optional
@@ -389,7 +389,7 @@ export namespace Amazon {
         }
     }
 
-    export class DialogIntentPromptType {
+    class DialogIntentPromptType {
         // Enum value in the dialog_intents map to reference the confirmation prompt id, optional
         public confirmation: string;
 
@@ -410,7 +410,7 @@ export namespace Amazon {
         }
     }
 
-    export class DialogIntentSlot {
+    class DialogIntentSlot {
         // Name of the slot in the dialog intent, required
         public name: string;
         // Type of the slot in the dialog intent, required
@@ -460,7 +460,7 @@ export namespace Amazon {
         } 
     }
 
-    export class DialogIntentSlotPromptType {
+    class DialogIntentSlotPromptType {
         // Enum value in the dialog_slots map to reference the elicitation prompt id, optional
         public elicitation: string;
         // Enum value in the dialog_slots map to reference the confirmation prompt id, optional
@@ -485,7 +485,7 @@ export namespace Amazon {
         }
     }
 
-    export class Prompt {
+    class Prompt {
         // Identifier of the prompt, required
         public id: string;
         // List of variations of the prompt, required
@@ -518,7 +518,7 @@ export namespace Amazon {
         }
     }
 
-    export class PromptVariation {
+    class PromptVariation {
         // One of: "PlainText" or "SSML", required
         public type: PromptVariationType;
         // Text that Alexa says as a prompt, required
@@ -546,7 +546,7 @@ export namespace Amazon {
         }
     }
 
-    export enum PromptVariationType {
+    enum PromptVariationType {
         PlainText = "PlainText",
         SSML = "SSML"
     }
