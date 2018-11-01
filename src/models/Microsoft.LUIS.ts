@@ -2,23 +2,23 @@
 ** Based on the schema available at https://westus.dev.cognitive.microsoft.com/docs/services/5890b47c39e2bb17b84a55ff/operations/5892283039e2bb0d9c2805f5 
 */
 
-export namespace LUMC.Models {
+export namespace LUMC.Models.LUIS {
 
-    class Intent {
+    export class Intent {
         // required
         public name: string;
         // optional
         public inherits: IntentInherit;
     }
 
-    class IntentInherit {
+    export class IntentInherit {
         // required
         public domain_name: string;
         // required
         public model_name: string;
     }
 
-    class Entity {
+    export class Entity {
         // required
         public name: string;
         // optional
@@ -60,14 +60,14 @@ export namespace LUMC.Models {
     }
     */
 
-    class ClosedList {
+    export class ClosedList {
         // required
         public name: string;
         // required
         public sublists: Array<ClosedListSublist>;
     }
 
-    class ClosedListSublist {
+    export class ClosedListSublist {
         // required
         public canonicalForm: string;
         // optional
@@ -76,7 +76,7 @@ export namespace LUMC.Models {
         public roles: Array<string>;
     }
 
-    class Composite {
+    export class Composite {
         // required
         public name: string;
         // required
@@ -85,7 +85,7 @@ export namespace LUMC.Models {
         public roles: Array<string>;
     }
 
-    class PatternAnyEntity {
+    export class PatternAnyEntity {
         // required
         public name: string;
         // optional
@@ -94,7 +94,7 @@ export namespace LUMC.Models {
         public roles: Array<string>;
     }
 
-    class RegExEntity {
+    export class RegExEntity {
         // required
         public name: string;
         // required
@@ -103,14 +103,14 @@ export namespace LUMC.Models {
         public roles: Array<string>;
     }
 
-    class PrebuiltEntity {
+    export class PrebuiltEntity {
         // required
         public name: string;
         // optional
         public roles: Array<string>;
     }
 
-    class RegExFeature {
+    export class RegExFeature {
         // required
         public name: string;
         // required
@@ -121,7 +121,7 @@ export namespace LUMC.Models {
         public roles: Array<string>;
     }
 
-    class ModelFeature {
+    export class ModelFeature {
         // required
         public name: string;
         // required, default true
@@ -132,14 +132,14 @@ export namespace LUMC.Models {
         public activated: boolean; 
     }
 
-    class Pattern {
+    export class Pattern {
         // required
         public pattern: string;
         // required
         public intent: string;
     }
 
-    class Utterance {
+    export class Utterance {
         // required
         public text: string;
         // required
@@ -148,7 +148,7 @@ export namespace LUMC.Models {
         public entities: Array<UtteranceEntity>;
     }
 
-    class UtteranceEntity {
+    export class UtteranceEntity {
         // required
         public startPos: number;
         // required
