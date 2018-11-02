@@ -4,18 +4,28 @@ import { stringify } from "querystring";
 ** Based on the schema available at https://westus.dev.cognitive.microsoft.com/docs/services/5890b47c39e2bb17b84a55ff/operations/5892283039e2bb0d9c2805f5 
 */
 
-export namespace LUMC.Models.LUIS {
+export namespace LUMC.LUIS {
     interface INamed {
-        name: string;
+        name: string;        
+    }
+
+    interface INamedRolesBased extends INamed {
+        roles: string[];
+        addRole(newRole: string): void;
     }
 
     /* Helper functions */
-    function addToNamedCollection<T extends INamed>(collection: Array<T>, newItem:T): Array<T> {
-        if (collection !== null) {
-            let i: T;
-            if ((i = collection.find((item) => {
-                    return item.name.toLocaleLowerCase() == newItem.name.toLocaleLowerCase();
-                })) == null) {
+    function addToCollection<T>(collection: Array<T>, newItem:T, equal: (itemA:T, itemB: T) => boolean, merger?: (base:T, merged: T) => T): Array<T> {
+        if (collection !== null && collection.length > 0) {
+            if (collection.find((item, index) => {
+                    if (equal(item, newItem)) {
+                        if (merger instanceof Function) {
+                            collection[index] = merger(item, newItem);
+                        }
+                        return true;
+                    } 
+                    return false;
+                }) == undefined) {
                 collection.push(newItem);
             }
         } else {
@@ -24,21 +34,31 @@ export namespace LUMC.Models.LUIS {
         return collection;
     }
 
+    function addToNamedCollection<T extends INamed>(collection: Array<T>, newItem:T, merger?: (base:T, merged: T) => T): Array<T> {
+        return addToCollection<T>(collection, newItem, (itemA:T, itemB:T) => {
+            return itemA.name.toLocaleLowerCase() == itemB.name.toLocaleLowerCase();
+        }, merger);
+    }
+
+    function addToNamedRolesBasedCollection<T extends INamedRolesBased>(collection: Array<T>, newItem:T): Array<T> {
+        return addToCollection<T>(collection, newItem, (itemA:T, itemB:T) => {
+            return itemA.name.toLocaleLowerCase() == itemB.name.toLocaleLowerCase();
+        }, (baseItem, mergedItem) => {
+            mergedItem.roles.forEach((role) => {
+                baseItem.addRole(role);
+            });
+            return baseItem;  
+        });
+    }
+
     function addToStringCollection(collection: Array<string>, newItem: string, caseSensetive: boolean = false) {
-        if (collection !== null) {
-            if (collection.find((item) => {
-                if (caseSensetive) {
-                    return item == newItem;
-                } else {
-                    return item.toLocaleLowerCase() == newItem.toLocaleLowerCase();
-                }                
-            }) == null) {
-                collection.push(newItem);
-            }
-        } else {
-            collection = new Array<string>(newItem);
-        }
-        return collection;
+        return addToCollection<string>(collection, newItem, (itemA:string, itemB:string) => {
+            if (caseSensetive) {
+                return itemA == itemB;
+            } else {
+                return itemA.toLocaleLowerCase() == itemB.toLocaleLowerCase();
+            }            
+        }, null);
     }
 
     /* LUIS Model Classes */
@@ -46,19 +66,19 @@ export namespace LUMC.Models.LUIS {
         // required
         public name: string;
         // optional
-        public inherits: IntentInherit;
+        public inherits: Inherit;
 
-        constructor(name: string, inherit?: IntentInherit) {
+        constructor(name: string, inherit?: Inherit) {
             this.name = name;
             this.inherits = (inherit !== undefined) ? inherit: null;
         }
 
-        public setInherits(inherit: IntentInherit) {
+        public setInherits(inherit: Inherit) {
             this.inherits = inherit;
         }
     }
 
-    export class IntentInherit {
+    export class Inherit {
         // required
         public domain_name: string;
         // required
@@ -70,18 +90,21 @@ export namespace LUMC.Models.LUIS {
         }
     }
 
-    export class Entity implements INamed {
+    export class Entity implements INamedRolesBased {
         // required
         public name: string;
         // optional
         public children: Array<string>;
         // optional
         public roles: Array<string>;
+        // optional
+        public inherits: Inherit;
 
-        constructor(name: string, children?: Array<string>, roles?: Array<string>) {
+        constructor(name: string, children?: Array<string>, roles?: Array<string>, inherit?: Inherit) {
             this.name = name;
             this.children = (children !== undefined) ? children : new Array<string>();
             this.roles = (roles !== undefined) ? roles : new Array<string>();
+            this.inherits = (inherit !== undefined) ? inherit: null;
         }
 
         public addChild(newChildEntity: string) {
@@ -90,6 +113,10 @@ export namespace LUMC.Models.LUIS {
 
         public addRole(newRole: string) {
             this.roles = addToStringCollection(this.roles, newRole);
+        }
+
+        public setInherits(inherit: Inherit) {
+            this.inherits = inherit;
         }
     }
     
@@ -126,7 +153,7 @@ export namespace LUMC.Models.LUIS {
     }
     */
 
-    export class ClosedList implements INamed {
+    export class ClosedList implements INamedRolesBased {
         // required
         public name: string;
         // required
@@ -141,19 +168,14 @@ export namespace LUMC.Models.LUIS {
         }
 
         public addSublist(newSubList: ClosedListSublist, merge: boolean = false) {
-            if (this.sublists !== null) {
-                let l: ClosedListSublist = null;
-                // check for duplicates
-                if ((l = this.sublists.find((list) => {
-                        return list.canonicalForm.toLocaleLowerCase() == newSubList.canonicalForm.toLocaleLowerCase();
-                    })) == null) {
-                    this.sublists.push(newSubList);
-                } else if (merge) {
-                    l.mergeSublist(newSubList);
+            this.sublists = addToCollection<ClosedListSublist>(this.sublists, newSubList, 
+                (itemA:ClosedListSublist, itemB:ClosedListSublist) => {
+                    return itemA.canonicalForm.toLocaleLowerCase() == itemB.canonicalForm.toLocaleLowerCase();
+                }, 
+                (baseItem, mergedItem) => {
+                    return baseItem.mergeSublist(mergedItem);
                 }
-            } else {
-                this.sublists = new Array<ClosedListSublist>(newSubList);
-            }
+            );
         }
 
         public addRole(newRole: string) {
@@ -183,17 +205,18 @@ export namespace LUMC.Models.LUIS {
             this.roles = addToStringCollection(this.roles, newRole);
         }        
 
-        public mergeSublist(sublist: ClosedListSublist) {
+        public mergeSublist(sublist: ClosedListSublist): ClosedListSublist {
             sublist.list.forEach((item) => {
                 this.addListItem(item);
             })
             sublist.roles.forEach((role) => {
                 this.addRole(role);
             })
+            return this;
         }
     }
 
-    export class Composite implements INamed {
+    export class Composite implements INamedRolesBased {
         // required
         public name: string;
         // required
@@ -216,7 +239,7 @@ export namespace LUMC.Models.LUIS {
         }
     }
 
-    export class PatternAnyEntity implements INamed {
+    export class PatternAnyEntity implements INamedRolesBased {
         // required
         public name: string;
         // optional
@@ -239,7 +262,7 @@ export namespace LUMC.Models.LUIS {
         }
     }
 
-    export class RegExEntity implements INamed {
+    export class RegExEntity implements INamedRolesBased {
         // required
         public name: string;
         // required
@@ -258,7 +281,7 @@ export namespace LUMC.Models.LUIS {
         }
     }
 
-    export class PrebuiltEntity implements INamed {
+    export class PrebuiltEntity implements INamedRolesBased {
         // required
         public name: string;
         // optional
@@ -274,7 +297,7 @@ export namespace LUMC.Models.LUIS {
         }
     }
 
-    export class RegExFeature implements INamed {
+    export class RegExFeature implements INamedRolesBased {
         // required
         public name: string;
         // required
@@ -421,31 +444,31 @@ export namespace LUMC.Models.LUIS {
         }
 
         public addEntity(newEntity: Entity) {
-            this.entities = addToNamedCollection<Entity>(this.entities, newEntity);
+            this.entities = addToNamedRolesBasedCollection<Entity>(this.entities, newEntity);
         }
 
         public addClosedList(newClosedList: ClosedList) {
-            this.closedLists = addToNamedCollection<ClosedList>(this.closedLists, newClosedList);
+            this.closedLists = addToNamedRolesBasedCollection<ClosedList>(this.closedLists, newClosedList);
         }
 
         public addComposite(newComposite: Composite) {
-            this.composites = addToNamedCollection<Composite>(this.composites, newComposite);
+            this.composites = addToNamedRolesBasedCollection<Composite>(this.composites, newComposite);
         }
 
         public addPatternAnyEntity(newPatternAnyEntity: PatternAnyEntity) {
-            this.patternAnyEntities = addToNamedCollection<PatternAnyEntity>(this.patternAnyEntities, newPatternAnyEntity);
+            this.patternAnyEntities = addToNamedRolesBasedCollection<PatternAnyEntity>(this.patternAnyEntities, newPatternAnyEntity);
         }
 
         public addRegExEntity(newRegExEntity: RegExEntity) {
-            this.regex_entities = addToNamedCollection<RegExEntity>(this.regex_entities, newRegExEntity);
+            this.regex_entities = addToNamedRolesBasedCollection<RegExEntity>(this.regex_entities, newRegExEntity);
         }
 
         public addPrebuiltEntity(newPrebuiltEntity: PrebuiltEntity) {
-            this.prebuiltEntities = addToNamedCollection<PrebuiltEntity>(this.prebuiltEntities, newPrebuiltEntity);
+            this.prebuiltEntities = addToNamedRolesBasedCollection<PrebuiltEntity>(this.prebuiltEntities, newPrebuiltEntity);
         }
 
         public addRegExFeature(newRegExFeature: RegExFeature) {
-            this.regex_features = addToNamedCollection<RegExFeature>(this.regex_features, newRegExFeature);
+            this.regex_features = addToNamedRolesBasedCollection<RegExFeature>(this.regex_features, newRegExFeature);
         }
 
         public addModelFeature(newModelFeature: ModelFeature) {
@@ -453,34 +476,28 @@ export namespace LUMC.Models.LUIS {
         }
 
         public addPattern(newPattern: Pattern) {
-            if (this.patterns !== null) {
-                if (this.patterns.find((pattern) => {
-                    return pattern.pattern.toLocaleLowerCase() == newPattern.pattern.toLocaleLowerCase();              
-                }) == null) {
-                    this.patterns.push(newPattern);
-                }
-            } else {
-                this.patterns = new Array<Pattern>(newPattern);
-            }
+            this.patterns = addToCollection<Pattern>(this.patterns, newPattern, 
+                (itemA:Pattern, itemB:Pattern) => {
+                    return itemA.pattern.toLocaleLowerCase() == itemB.pattern.toLocaleLowerCase();
+                }, 
+                null
+            );
         }
 
         public addUtterance(newUtterance: Utterance) {
-            if (this.utterances !== null) {
-                if (this.utterances.find((utterance) => {
-                    return utterance.text.toLocaleLowerCase() == newUtterance.text.toLocaleLowerCase();              
-                }) == null) {
-                    this.utterances.push(newUtterance);
-                }
-            } else {
-                this.utterances = new Array<Utterance>(newUtterance);
-            }
+            this.utterances = addToCollection<Utterance>(this.utterances, newUtterance, 
+                (itemA:Utterance, itemB:Utterance) => {
+                    return itemA.text.toLocaleLowerCase() == itemB.text.toLocaleLowerCase();
+                }, 
+                null
+            );
         }
 
         public serialize(): string {
             return JSON.stringify(this);
         }
 
-        
+
     }    
 
 }
