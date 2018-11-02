@@ -2,7 +2,7 @@
 ** Based on the Interaction Model described here: https://developer.amazon.com/docs/smapi/interaction-model-schema.html
 */
 
-export namespace LUMC.Models.Alexa {
+export namespace LUMC.Alexa {
     export class InteractionModel {
         // Conversational primitives for the skill, required
         public languageModel: LanguageModel;
