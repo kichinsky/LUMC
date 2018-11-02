@@ -30,12 +30,15 @@
         SystemJS.import("./js/lucm.js").then(function(module){
             Promise.all([
                 SystemJS.import('./js/FileSaver.js'),
-                SystemJS.import('models/Amazon.Alexa')
+                SystemJS.import('models/Amazon.Alexa'),
+                SystemJS.import('models/Microsoft.LUIS'),
+                SystemJS.import('converters/Alexa2Luis')
                 
             ]).then(function(modules){                
                 let saveAs = modules[0].default;
-                let AlexaModel = modules[1].LUMC.Models.Alexa.AlexaModel;
-                //let alexa2luis = new ModelConverter.AlexaToLuisConveter();
+                let AlexaModel = modules[1].LUMC.Alexa.AlexaModel;
+                let LUISModel = modules[2].LUMC.LUIS.LUISModel;
+                let alexa2luis = modules[3].LUMC.Converters.Alexa2LUISConverter;
 
                 let convert_btn = document.querySelector("#convert_btn");
                 let sourceload_btn = document.querySelector("#load_source_model_btn");
@@ -46,9 +49,11 @@
                 convert_btn.addEventListener("click", (e) => {
                     let sourceJSON = source_ta.value;
 
-                    let model = AlexaModel.deserialize(sourceJSON);
+                    let sourceModel = AlexaModel.deserialize(sourceJSON);
 
-                    output_ta.value = model.serialize();
+                    let outputModel = alexa2luis.convert(sourceModel, "0.1", "en-us");
+
+                    output_ta.value = outputModel.serialize();
                 });
 
                 sourceload_btn.addEventListener("change", (e) => {
