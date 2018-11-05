@@ -57,9 +57,11 @@ define("models/Microsoft.LUIS", ["require", "exports"], function (require, expor
             class Intent {
                 constructor(name, inherit) {
                     this.name = name;
-                    this.inherits = (inherit !== undefined) ? inherit : null;
+                    if (inherit !== undefined) {
+                        this.inherits = inherit;
+                    }
                 }
-                setInherits(inherit) {
+                setInheritance(inherit) {
                     this.inherits = inherit;
                 }
             }
@@ -72,19 +74,28 @@ define("models/Microsoft.LUIS", ["require", "exports"], function (require, expor
             }
             LUIS.Inherit = Inherit;
             class Entity {
-                constructor(name, children, roles, inherit) {
+                constructor(name, roles, children, inherit) {
                     this.name = name;
-                    this.children = (children !== undefined) ? children : new Array();
                     this.roles = (roles !== undefined) ? roles : new Array();
-                    this.inherits = (inherit !== undefined) ? inherit : null;
+                    if (children !== undefined) {
+                        this.children = children;
+                    }
+                    if (inherit !== undefined) {
+                        this.inherits = inherit;
+                    }
                 }
                 addChild(newChildEntity) {
-                    this.children = addToStringCollection(this.children, newChildEntity);
+                    if (this.children !== undefined && this.children !== null) {
+                        this.children = addToStringCollection(this.children, newChildEntity);
+                    }
+                    else {
+                        this.children = [newChildEntity];
+                    }
                 }
                 addRole(newRole) {
                     this.roles = addToStringCollection(this.roles, newRole);
                 }
-                setInherits(inherit) {
+                setInheritance(inherit) {
                     this.inherits = inherit;
                 }
             }
@@ -124,7 +135,7 @@ define("models/Microsoft.LUIS", ["require", "exports"], function (require, expor
             class ClosedList {
                 constructor(name, sublists, roles) {
                     this.name = name;
-                    this.sublists = sublists;
+                    this.sublists = (sublists !== undefined) ? sublists : new Array();
                     this.roles = (roles !== undefined) ? roles : new Array();
                 }
                 addSublist(newSubList, merge = false) {
@@ -870,10 +881,10 @@ define("converters/Alexa2Luis", ["require", "exports", "models/Microsoft.LUIS"],
                         let languageModel = this.alexa.interactionModel.languageModel;
                         languageModel.intents.forEach((intent) => {
                             if (intent.slots == null || intent.slots.length == 0) {
-                                this.processSimpleAlexaIntent(intent);
+                                this.processSimpleIntent(intent);
                             }
                             else {
-                                this.processComplexAlexaIntent(intent, languageModel.types);
+                                this.processComplexIntent(intent, languageModel.types);
                             }
                         });
                         /* Ignore Dialog and Prompts
@@ -884,67 +895,164 @@ define("converters/Alexa2Luis", ["require", "exports", "models/Microsoft.LUIS"],
                         */
                     }
                 }
-                // Intent with no slots
-                processSimpleAlexaIntent(intent) {
+                // Process intent without slots
+                processSimpleIntent(intent) {
                     // Use some samples from AMAZON for standard built-in intents to generate utterances
-                    // Open issues:
-                    // * Coverage on built-in intents
-                    // * Mapping of Alexa build-in intents to LUIS build-in intents
                     if (intent.name.startsWith("AMAZON")) {
-                        let builtInIntent = this.builtInAlexaIntents.find((builtin) => {
-                            return builtin.intentName == intent.name;
-                        });
-                        if (builtInIntent !== undefined) {
-                            if (builtInIntent.samples == null || builtInIntent.samples.length == 0) {
-                                // not samples provided, ignore
-                                console.log("Warning. No samples provided for the built-in Alexa intent: " + intent.name);
-                            }
-                            else {
-                                builtInIntent.samples.forEach((sample) => {
-                                    this.luis.addUtterance(new Microsoft_LUIS_1.LUMC.LUIS.Utterance(sample, intent.name));
-                                });
-                            }
-                        }
-                        else {
-                            // not found, ignore
-                            console.log("Warning. Not found built-in Alexa intent: " + intent.name);
-                        }
+                        this.processBuiltInAlexaIntent(intent);
                     }
                     // Use intent samples to generate utterances  
                     else {
+                        this.processCustomSimpleIntent(intent);
+                    }
+                }
+                // Process build-in Alexa Intent
+                // Open issues:
+                // * Coverage on built-in intents
+                // * Mapping of Alexa build-in intents to LUIS build-in intents
+                processBuiltInAlexaIntent(intent) {
+                    let builtInIntent = this.builtInAlexaIntents.find((builtin) => {
+                        return builtin.intentName == intent.name;
+                    });
+                    if (builtInIntent !== undefined) {
+                        if (builtInIntent.samples !== null && builtInIntent.samples.length > 0) {
+                            builtInIntent.samples.forEach((sample) => {
+                                this.luis.addUtterance(new Microsoft_LUIS_1.LUMC.LUIS.Utterance(sample, intent.name));
+                            });
+                        }
+                        else {
+                            // not samples provided, ignore
+                            console.log(`Warning. No samples provided for the built-in Alexa intent: ${intent.name}.`);
+                        }
+                        this.luis.addIntent(new Microsoft_LUIS_1.LUMC.LUIS.Intent(intent.name));
+                    }
+                    else {
+                        // not found, ignore
+                        console.log(`Warning. Not found built-in Alexa intent: ${intent.name}.`);
+                        console.log(`...Processing build-in intent ${intent.name} as custom intent.`);
+                        this.processCustomSimpleIntent(intent);
+                    }
+                }
+                processCustomSimpleIntent(intent) {
+                    if (intent.samples !== null && intent.samples.length > 0) {
                         intent.samples.forEach((sample) => {
                             this.luis.addUtterance(new Microsoft_LUIS_1.LUMC.LUIS.Utterance(sample, intent.name));
                         });
                     }
+                    else {
+                        // not samples provided, ignore
+                        console.log(`Warning. No samples provided for the intent: ${intent.name}.`);
+                    }
+                    this.luis.addIntent(new Microsoft_LUIS_1.LUMC.LUIS.Intent(intent.name));
                 }
-                // Intent with slots
-                processComplexAlexaIntent(intent, types) {
+                // Process intent with slots
+                processComplexIntent(intent, types) {
                     let slots = intent.slots;
+                    let samples = [];
+                    let slotReplacements;
                     // Convert slots into entities
-                    slots.forEach((slot) => {
-                        let type = slot.type;
+                    slotReplacements = slots.map((slot) => {
+                        let typeName = slot.type;
+                        let typeDescriptor;
+                        let entityName;
                         // Use mapping for built-in entities
-                        if (type.startsWith("AMAZON")) {
-                            let map = this.buildInTypesMap.find((pair) => {
-                                return pair.alexa == type;
-                            });
-                            if (map !== undefined) {
-                                if (map.luisType === "domain") {
-                                    let entity = new Microsoft_LUIS_1.LUMC.LUIS.Entity(map.luis, [slot.name]);
-                                    let parts = map.luis.split(".");
-                                    entity.setInherits(new Microsoft_LUIS_1.LUMC.LUIS.Inherit(parts[0], parts[1]));
-                                    this.luis.addEntity(entity);
-                                }
-                                else if (map.luisType === "prebuilt") {
-                                    this.luis.addPrebuiltEntity(new Microsoft_LUIS_1.LUMC.LUIS.PrebuiltEntity(map.luis, [slot.name]));
-                                }
+                        if (typeName.startsWith("AMAZON")) {
+                            entityName = this.processBuiltInAlexaEntity(slot);
+                        }
+                        // Convert types into entities
+                        else if ((typeDescriptor = types.find((t) => {
+                            return t.name == typeName;
+                        })) !== undefined) {
+                            entityName = this.processTypedEntity(slot, typeDescriptor);
+                        }
+                        else {
+                            entityName = this.processSimpleEntity(slot);
+                        }
+                        // process slot samples
+                        if (slot.samples !== null && slot.samples.length > 0) {
+                            samples = samples.concat(slot.samples);
+                        }
+                        return { slot: slot.name, replacement: entityName };
+                    });
+                    // process samples
+                    samples = samples.concat(intent.samples);
+                    samples.forEach((sample) => {
+                        this.processEntitySample(intent.name, sample, slotReplacements);
+                    });
+                    this.luis.addIntent(new Microsoft_LUIS_1.LUMC.LUIS.Intent(intent.name));
+                }
+                // Process build-in Alexa entity
+                // Open issues:
+                // * Coverage on built-in entities
+                processBuiltInAlexaEntity(slot) {
+                    let typeName = slot.type;
+                    let entityName;
+                    let map = this.buildInTypesMap.find((pair) => {
+                        return pair.alexa == typeName;
+                    });
+                    if (map !== undefined) {
+                        // Convert domain-based slot into Entity with Inheritance
+                        if (map.luisType === "domain") {
+                            let parts = map.luis.split(".");
+                            let entity = new Microsoft_LUIS_1.LUMC.LUIS.Entity(map.luis, [slot.name], undefined, new Microsoft_LUIS_1.LUMC.LUIS.Inherit(parts[0], parts[1]));
+                            this.luis.addEntity(entity);
+                            // Convert prebuild basic slot into PrebuiltEntity
+                        }
+                        else if (map.luisType === "prebuilt") {
+                            this.luis.addPrebuiltEntity(new Microsoft_LUIS_1.LUMC.LUIS.PrebuiltEntity(map.luis, [slot.name]));
+                        }
+                        entityName = map.luis + ":" + slot.name;
+                    }
+                    else {
+                        // not found, ignore
+                        console.log(`Warning. Not found built-in Alexa entity: ${typeName}.`);
+                        console.log(`...Processing build-in entity ${typeName} as simple entity.`);
+                        entityName = this.processSimpleEntity(slot);
+                    }
+                    return entityName;
+                }
+                // Process typed Alexa entity
+                // Open issues:
+                // * Choose using hierarchical entity OR closed list
+                processTypedEntity(slot, typeDescriptor) {
+                    let closedList = new Microsoft_LUIS_1.LUMC.LUIS.ClosedList(slot.type, [], [slot.name]);
+                    typeDescriptor.values.forEach((value) => {
+                        let canonicalForm = new Microsoft_LUIS_1.LUMC.LUIS.ClosedListSublist(value.name.value);
+                        closedList.addSublist(canonicalForm, true);
+                    });
+                    this.luis.addClosedList(closedList);
+                    return slot.type + ":" + slot.name;
+                }
+                // Process simple Alexa entity (no type provided)
+                processSimpleEntity(slot) {
+                    this.luis.addEntity(new Microsoft_LUIS_1.LUMC.LUIS.Entity(slot.type, [slot.name]));
+                    return slot.type + ":" + slot.name;
+                }
+                processEntitySample(intentName, sample, slotPairs) {
+                    // replace slots with new entities
+                    let pattern = sample;
+                    if (slotPairs !== null && slotPairs.length > 0) {
+                        let ignore = false;
+                        slotPairs.forEach((pair) => {
+                            // replace all occurrences
+                            let escape = `{${pair.slot}}`.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+                            let escapeRegExp = new RegExp(escape, 'g');
+                            if ((pattern.match(escapeRegExp) || []).length == 1) {
+                                pattern = pattern.replace(escapeRegExp, `{${pair.replacement}}`);
                             }
                             else {
-                                // not found, ignore
-                                console.log("Warning. Not found built-in Alexa entity: " + type);
+                                // ignore patterns with 2 or more occurrences of the same slot (not supported in LUIS)
+                                console.log(`Warning. Ignoring the sample: "${sample}". Multiple occurrences of the same slot are not suppurted for patterns in LUIS.`);
+                                ignore = true;
                             }
+                        });
+                        if (!ignore) {
+                            this.luis.addPattern(new Microsoft_LUIS_1.LUMC.LUIS.Pattern(pattern, intentName));
                         }
-                    });
+                    }
+                    else {
+                        this.luis.addUtterance(new Microsoft_LUIS_1.LUMC.LUIS.Utterance(sample, intentName));
+                    }
                 }
                 /* External interface */
                 static convert(alexaModel, versionId, culture) {
