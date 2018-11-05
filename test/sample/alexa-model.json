@@ -30,6 +30,8 @@
                             "name": "term",
                             "type": "Quantum_Term",
                             "samples": [
+                                "What is the difference between {term} and {term}",
+                                "What is {term} and {term}",
                                 "What is {term} ",
                                 "I don't understand {term}",
                                 "Clarify {term}",
