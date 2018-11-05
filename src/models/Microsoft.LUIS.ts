@@ -1,4 +1,5 @@
 import { stringify } from "querystring";
+import { throws } from "assert";
 
 /* Microsoft LUIS model
 ** Based on the schema available at https://westus.dev.cognitive.microsoft.com/docs/services/5890b47c39e2bb17b84a55ff/operations/5892283039e2bb0d9c2805f5 
@@ -66,14 +67,16 @@ export namespace LUMC.LUIS {
         // required
         public name: string;
         // optional
-        public inherits: Inherit;
+        public inherits?: Inherit;
 
         constructor(name: string, inherit?: Inherit) {
             this.name = name;
-            this.inherits = (inherit !== undefined) ? inherit: null;
+            if (inherit !== undefined) { 
+                this.inherits = inherit;
+            }
         }
 
-        public setInherits(inherit: Inherit) {
+        public setInheritance(inherit: Inherit) {
             this.inherits = inherit;
         }
     }
@@ -94,28 +97,37 @@ export namespace LUMC.LUIS {
         // required
         public name: string;
         // optional
-        public children: Array<string>;
+        public children?: Array<string>;
         // optional
         public roles: Array<string>;
         // optional
-        public inherits: Inherit;
+        public inherits?: Inherit;
 
-        constructor(name: string, children?: Array<string>, roles?: Array<string>, inherit?: Inherit) {
+        constructor(name: string, roles?: Array<string>, children?: Array<string>, inherit?: Inherit) {
             this.name = name;
-            this.children = (children !== undefined) ? children : new Array<string>();
             this.roles = (roles !== undefined) ? roles : new Array<string>();
-            this.inherits = (inherit !== undefined) ? inherit: null;
+            if (children !== undefined) {
+                this.children = children;
+            }
+            if (inherit !== undefined) {
+                this.inherits = inherit;
+            }
         }
 
         public addChild(newChildEntity: string) {
-            this.children = addToStringCollection(this.children, newChildEntity);
+            if (this.children !== undefined && this.children !== null) {
+                this.children = addToStringCollection(this.children, newChildEntity);
+            } else {
+                this.children = [newChildEntity];
+            }
+            
         }
 
         public addRole(newRole: string) {
             this.roles = addToStringCollection(this.roles, newRole);
         }
 
-        public setInherits(inherit: Inherit) {
+        public setInheritance(inherit: Inherit) {
             this.inherits = inherit;
         }
     }
@@ -156,14 +168,14 @@ export namespace LUMC.LUIS {
     export class ClosedList implements INamedRolesBased {
         // required
         public name: string;
-        // required
+        // optional
         public sublists: Array<ClosedListSublist>;
         // optional
         public roles: Array<string>;
         
-        constructor(name: string, sublists: Array<ClosedListSublist>, roles?: Array<string>) {
+        constructor(name: string, sublists?: Array<ClosedListSublist>, roles?: Array<string>) {
             this.name = name;
-            this.sublists = sublists;
+            this.sublists = (sublists !== undefined) ? sublists : new Array<ClosedListSublist>();
             this.roles = (roles !== undefined) ? roles : new Array<string>();
         }
 
