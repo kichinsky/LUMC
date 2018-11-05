@@ -1,0 +1,233 @@
+{
+    "name": "quantum quintum",
+    "versionId": "0.2.2",
+    "culture": "en-us",
+    "luis_schema_version": "3.1.0",
+    "desc": "",
+    "intents": [
+        {
+            "name": "AMAZON.FallbackIntent"
+        },
+        {
+            "name": "AMAZON.CancelIntent"
+        },
+        {
+            "name": "AMAZON.HelpIntent"
+        },
+        {
+            "name": "AMAZON.StopIntent"
+        },
+        {
+            "name": "AMAZON.NavigateHomeIntent"
+        },
+        {
+            "name": "explain_term"
+        },
+        {
+            "name": "get_new_exercise"
+        },
+        {
+            "name": "give_spectrum_sample"
+        }
+    ],
+    "entities": [
+        {
+            "name": "AMAZON.LITERAL",
+            "roles": [
+                "mismatch"
+            ]
+        }
+    ],
+    "closedLists": [
+        {
+            "name": "Quantum_Term",
+            "sublists": [
+                {
+                    "canonicalForm": "exclusion",
+                    "list": [],
+                    "roles": []
+                },
+                {
+                    "canonicalForm": "inclusion",
+                    "list": [],
+                    "roles": []
+                },
+                {
+                    "canonicalForm": "spectrum",
+                    "list": [],
+                    "roles": []
+                },
+                {
+                    "canonicalForm": "disability",
+                    "list": [],
+                    "roles": []
+                },
+                {
+                    "canonicalForm": "mismatch",
+                    "list": [],
+                    "roles": []
+                }
+            ],
+            "roles": [
+                "term"
+            ]
+        },
+        {
+            "name": "Quantum_Spectrum_Part",
+            "sublists": [
+                {
+                    "canonicalForm": "permanent",
+                    "list": [],
+                    "roles": []
+                },
+                {
+                    "canonicalForm": "situational",
+                    "list": [],
+                    "roles": []
+                },
+                {
+                    "canonicalForm": "temporary",
+                    "list": [],
+                    "roles": []
+                }
+            ],
+            "roles": [
+                "spectrum_part"
+            ]
+        }
+    ],
+    "composites": [],
+    "patternAnyEntities": [],
+    "regex_entities": [],
+    "prebuiltEntities": [],
+    "regex_features": [],
+    "model_features": [],
+    "patterns": [
+        {
+            "pattern": "What is {Quantum_Term:term} ",
+            "intent": "explain_term"
+        },
+        {
+            "pattern": "I don't understand {Quantum_Term:term}",
+            "intent": "explain_term"
+        },
+        {
+            "pattern": "Clarify {Quantum_Term:term}",
+            "intent": "explain_term"
+        },
+        {
+            "pattern": "Explain {Quantum_Term:term}",
+            "intent": "explain_term"
+        },
+        {
+            "pattern": "{Quantum_Term:term}",
+            "intent": "explain_term"
+        },
+        {
+            "pattern": "what is a {Quantum_Term:term}",
+            "intent": "explain_term"
+        },
+        {
+            "pattern": "what is the definition of {Quantum_Term:term}",
+            "intent": "explain_term"
+        },
+        {
+            "pattern": "Please explain what is {Quantum_Term:term}",
+            "intent": "explain_term"
+        },
+        {
+            "pattern": "Give me an example of {Quantum_Spectrum_Part:spectrum_part} disability for {AMAZON.LITERAL:mismatch}",
+            "intent": "give_spectrum_sample"
+        },
+        {
+            "pattern": "How {Quantum_Spectrum_Part:spectrum_part} part looks for {AMAZON.LITERAL:mismatch} mismatch",
+            "intent": "give_spectrum_sample"
+        },
+        {
+            "pattern": "How {Quantum_Spectrum_Part:spectrum_part} spectrum looks for the {AMAZON.LITERAL:mismatch} mismatch",
+            "intent": "give_spectrum_sample"
+        }
+    ],
+    "utterances": [
+        {
+            "text": "cancel",
+            "intent": "AMAZON.CancelIntent",
+            "entities": []
+        },
+        {
+            "text": "never mind",
+            "intent": "AMAZON.CancelIntent",
+            "entities": []
+        },
+        {
+            "text": "forget it",
+            "intent": "AMAZON.CancelIntent",
+            "entities": []
+        },
+        {
+            "text": "help",
+            "intent": "AMAZON.HelpIntent",
+            "entities": []
+        },
+        {
+            "text": "help me",
+            "intent": "AMAZON.HelpIntent",
+            "entities": []
+        },
+        {
+            "text": "can you help me",
+            "intent": "AMAZON.HelpIntent",
+            "entities": []
+        },
+        {
+            "text": "stop",
+            "intent": "AMAZON.StopIntent",
+            "entities": []
+        },
+        {
+            "text": "off",
+            "intent": "AMAZON.StopIntent",
+            "entities": []
+        },
+        {
+            "text": "shut up",
+            "intent": "AMAZON.StopIntent",
+            "entities": []
+        },
+        {
+            "text": "next exercise",
+            "intent": "get_new_exercise",
+            "entities": []
+        },
+        {
+            "text": "practice now",
+            "intent": "get_new_exercise",
+            "entities": []
+        },
+        {
+            "text": "give me an exercise",
+            "intent": "get_new_exercise",
+            "entities": []
+        },
+        {
+            "text": "practice please",
+            "intent": "get_new_exercise",
+            "entities": []
+        },
+        {
+            "text": "practice",
+            "intent": "get_new_exercise",
+            "entities": []
+        },
+        {
+            "text": "let's exercise",
+            "intent": "get_new_exercise",
+            "entities": []
+        },
+        {
+            "text": "let's do some practice",
+            "intent": "get_new_exercise",
+            "entities": []
+        }
+    ]
+}
