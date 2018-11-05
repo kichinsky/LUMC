@@ -219,10 +219,10 @@ export module LUMC.Converters {
 
                 languageModel.intents.forEach((intent: Amazon.Alexa.LanguageModelIntent) => {
                     if (intent.slots == null || intent.slots.length == 0) {
-                        this.processSimpleAlexaIntent(intent);
+                        this.processSimpleIntent(intent);
                     } else {
-                        this.processComplexAlexaIntent(intent, languageModel.types);
-                    }                    
+                        this.processComplexIntent(intent, languageModel.types);
+                    }   
                 });
 
                 /* Ignore Dialog and Prompts 
@@ -235,16 +235,14 @@ export module LUMC.Converters {
         }
 
         // Process intent without slots
-        private processSimpleAlexaIntent(intent: Amazon.Alexa.LanguageModelIntent) {
+        private processSimpleIntent(intent: Amazon.Alexa.LanguageModelIntent) {
             // Use some samples from AMAZON for standard built-in intents to generate utterances
             if (intent.name.startsWith("AMAZON")) {    
                 this.processBuiltInAlexaIntent(intent);
             }
             // Use intent samples to generate utterances  
             else {
-                intent.samples.forEach((sample: string) => {
-                    this.luis.addUtterance(new Microsoft.LUIS.Utterance(sample, intent.name));
-                });
+                this.processCustomSimpleIntent(intent);
             }
         }
 
@@ -257,58 +255,155 @@ export module LUMC.Converters {
                 return builtin.intentName == intent.name;
             })
             if (builtInIntent !== undefined) {
-                if (builtInIntent.samples == null || builtInIntent.samples.length == 0) {
-                    // not samples provided, ignore
-                    console.log("Warning. No samples provided for the built-in Alexa intent: " + intent.name);
-                } else {
+                if (builtInIntent.samples !== null && builtInIntent.samples.length > 0) {
                     builtInIntent.samples.forEach((sample: string) => {
                         this.luis.addUtterance(new Microsoft.LUIS.Utterance(sample, intent.name));
                     });
+                } else {
+                    // not samples provided, ignore
+                    console.log(`Warning. No samples provided for the built-in Alexa intent: ${intent.name}.`);
                 }
+
+                this.luis.addIntent(new Microsoft.LUIS.Intent(intent.name));
             } else {
                 // not found, ignore
-                console.log("Warning. Not found built-in Alexa intent: " + intent.name);
+                console.log(`Warning. Not found built-in Alexa intent: ${intent.name}.`);
+                console.log(`...Processing build-in intent ${intent.name} as custom intent.`);
+                this.processCustomSimpleIntent(intent);             
             }
         }
 
+        private processCustomSimpleIntent(intent: Amazon.Alexa.LanguageModelIntent) {  
+            if (intent.samples !== null && intent.samples.length > 0) {
+                intent.samples.forEach((sample: string) => {
+                    this.luis.addUtterance(new Microsoft.LUIS.Utterance(sample, intent.name));
+                });
+            } else {
+                // not samples provided, ignore
+                console.log(`Warning. No samples provided for the intent: ${intent.name}.`);
+            }
+            this.luis.addIntent(new Microsoft.LUIS.Intent(intent.name));
+        }
+
         // Process intent with slots
-        private processComplexAlexaIntent(intent: Amazon.Alexa.LanguageModelIntent, types: Array<Amazon.Alexa.LanguageModelType>) {
+        private processComplexIntent(intent: Amazon.Alexa.LanguageModelIntent, types: Array<Amazon.Alexa.LanguageModelType>) {
             let slots = intent.slots;
 
-            // Convert slots into entities
-            slots.forEach((slot: Amazon.Alexa.LanguageModelIntentSlot) => {
-                let type = slot.type;
+            let samples: string[] = [];
+            let slotReplacements: Array<{slot: string, replacement: string}>;
 
+            // Convert slots into entities
+            slotReplacements = slots.map((slot: Amazon.Alexa.LanguageModelIntentSlot) => {
+                let typeName = slot.type;
+                let typeDescriptor: Amazon.Alexa.LanguageModelType;
+                let entityName: string;
                 // Use mapping for built-in entities
-                if (type.startsWith("AMAZON")) {
-                    this.processBuiltInAlexaEntity(slot);
+                if (typeName.startsWith("AMAZON")) {
+                    entityName = this.processBuiltInAlexaEntity(slot);
+                } 
+                // Convert types into entities
+                else if ((typeDescriptor = types.find(
+                    (t) => {
+                        return t.name == typeName;
+                    })) !== undefined) {
+                    entityName = this.processTypedEntity(slot, typeDescriptor);
+                } 
+                else {
+                    entityName = this.processSimpleEntity(slot);
                 }
 
+                // process slot samples
+                if (slot.samples !== null && slot.samples.length > 0) {
+                    samples = samples.concat(slot.samples);
+                }
+
+                return {slot: slot.name, replacement: entityName};
             });
+
+            // process samples
+            samples = samples.concat(intent.samples);
+            samples.forEach((sample) => {
+                this.processEntitySample(intent.name, sample, slotReplacements);
+            });
+
+            this.luis.addIntent(new Microsoft.LUIS.Intent(intent.name));
         }
 
         // Process build-in Alexa entity
         // Open issues:
         // * Coverage on built-in entities
-        private processBuiltInAlexaEntity(slot: Amazon.Alexa.LanguageModelIntentSlot) {
-            let type = slot.type;
+        private processBuiltInAlexaEntity(slot: Amazon.Alexa.LanguageModelIntentSlot): string {
+            let typeName = slot.type;
+            let entityName: string;
             let map = this.buildInTypesMap.find((pair) => {
-                return pair.alexa == type;
+                return pair.alexa == typeName;
             });
             if (map !== undefined) {
                 // Convert domain-based slot into Entity with Inheritance
                 if (map.luisType === "domain") {
                     let parts = map.luis.split(".");
-                    let entity = new Microsoft.LUIS.Entity(map.luis, [], [slot.name], new Microsoft.LUIS.Inherit(parts[0], parts[1]));
+                    let entity = new Microsoft.LUIS.Entity(map.luis, [slot.name], undefined, new Microsoft.LUIS.Inherit(parts[0], parts[1]));
                     this.luis.addEntity(entity);
                 // Convert prebuild basic slot into PrebuiltEntity
                 } else if (map.luisType === "prebuilt") {
                     this.luis.addPrebuiltEntity(new Microsoft.LUIS.PrebuiltEntity(map.luis, [slot.name]));
                 } 
+                entityName = map.luis + ":" + slot.name;
             } else {
                 // not found, ignore
-                console.log("Warning. Not found built-in Alexa entity: " + type);
+                console.log(`Warning. Not found built-in Alexa entity: ${typeName}.`);
+                console.log(`...Processing build-in entity ${typeName} as simple entity.`);
+                entityName = this.processSimpleEntity(slot);
             }
+            return entityName;
+        }
+
+        // Process typed Alexa entity
+        // Open issues:
+        // * Choose using hierarchical entity OR closed list
+        private processTypedEntity(slot: Amazon.Alexa.LanguageModelIntentSlot, typeDescriptor: Amazon.Alexa.LanguageModelType) {
+            let closedList = new Microsoft.LUIS.ClosedList(slot.type, [], [slot.name]);
+            typeDescriptor.values.forEach((value) => {
+                let canonicalForm = new Microsoft.LUIS.ClosedListSublist(value.name.value);
+                closedList.addSublist(canonicalForm, true);
+            })
+
+            this.luis.addClosedList(closedList);
+            return slot.type + ":" + slot.name;
+        }
+
+        // Process simple Alexa entity (no type provided)
+        private processSimpleEntity(slot: Amazon.Alexa.LanguageModelIntentSlot): string {
+            this.luis.addEntity(new Microsoft.LUIS.Entity(slot.type, [slot.name]));
+            return slot.type + ":" + slot.name;
+        }
+
+        private processEntitySample(intentName: string, sample: string, slotPairs: Array<{slot: string, replacement: string}>) {
+            // replace slots with new entities
+            let pattern = sample;
+
+            if (slotPairs !== null && slotPairs.length > 0) {
+                let ignore = false;
+                slotPairs.forEach((pair) => {
+                    // replace all occurrences
+                    let escape = `{${pair.slot}}`.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+                    let escapeRegExp = new RegExp(escape, 'g');
+
+                    if ((pattern.match(escapeRegExp) || []).length == 1) {
+                        pattern = pattern.replace(escapeRegExp, `{${pair.replacement}}`);
+                    } else {
+                        // ignore patterns with 2 or more occurrences of the same slot (not supported in LUIS)
+                        console.log(`Warning. Ignoring the sample: "${sample}". Multiple occurrences of the same slot are not suppurted for patterns in LUIS.`)
+                        ignore = true;
+                    }
+                });
+                if (!ignore) {
+                    this.luis.addPattern(new Microsoft.LUIS.Pattern(pattern, intentName));
+                }                
+            } else {
+                this.luis.addUtterance(new Microsoft.LUIS.Utterance(sample, intentName));
+            }
+            
         }
 
         /* External interface */
